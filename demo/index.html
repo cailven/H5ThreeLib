@@ -32,9 +32,16 @@
 <div id="threeCanvas"></div>
 <script>
 
-    H5ThreeLib.Util3D.init("threeCanvas");
+    H5ThreeLib.init3D.init("threeCanvas");
+    var cube = H5ThreeLib.geos.createCube();
 
+    function run() {
+        cube.rotation.y += 0.1;
+        cube.rotation.z += 0.1;
+    }
 
+    ThreejsTool.__proto__.constructor.active(run);
+    // H5ThreeLib.active(run);
 
 </script>
 </body>

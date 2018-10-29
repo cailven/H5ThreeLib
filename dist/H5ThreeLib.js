@@ -1,4 +1,4 @@
-/* util.js 版本号9月29日19:0 */
+/* util.js 版本号9月29日20:40 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -7,6 +7,9 @@
 
     var ThreejsTool = (function () {
         function ThreejsTool() {
+            window["scene"] = this.scene;
+            window["camera"] = this.camera;
+            window["renderer"] = this.renderer;
         }
         ThreejsTool.prototype.init = function (container) {
             var s = this;
@@ -26,6 +29,9 @@
             window["scene"] = this.scene;
             window["camera"] = this.camera;
             window["renderer"] = this.renderer;
+            window["ThreejsTool"] = this;
+            ThreejsTool.initEnd();
+            console.log("init");
             function animate() {
                 requestAnimationFrame(animate);
                 if (ThreejsTool.callbackArr.length > 0) {
@@ -111,12 +117,29 @@
             window["controls"] = this.controls;
             return this.controls;
         };
-        ThreejsTool.prototype.addAmbientLight = function (color, intensity) {
+        ThreejsTool.callbackArr = [];
+        return ThreejsTool;
+    }());
+
+    var LightManager = (function () {
+        function LightManager() {
+            this.scene = window["scene"];
+            this.camera = window["camera"];
+            this.renderer = window["renderer"];
+        }
+        LightManager.prototype.addAmbientLight = function (color, intensity) {
+            if (color === void 0) { color = "#ffffff"; }
+            if (intensity === void 0) { intensity = 1.0; }
             var light = new THREE.AmbientLight(color, intensity);
             this.scene.add(light);
             return light;
         };
-        ThreejsTool.prototype.addSpotLight = function (color, intensity, angle, dist, shadow) {
+        LightManager.prototype.addSpotLight = function (color, intensity, angle, dist, shadow) {
+            if (color === void 0) { color = "#ffffff"; }
+            if (intensity === void 0) { intensity = 1.0; }
+            if (angle === void 0) { angle = null; }
+            if (dist === void 0) { dist = 500; }
+            if (shadow === void 0) { shadow = null; }
             var light = new THREE.SpotLight(color, intensity, dist, angle);
             if (shadow) {
                 light.castShadow = true;
@@ -128,7 +151,11 @@
             this.scene.add(light);
             return light;
         };
-        ThreejsTool.prototype.addPointLight = function (color, intensity, dist, shadow) {
+        LightManager.prototype.addPointLight = function (color, intensity, dist, shadow) {
+            if (color === void 0) { color = "#ffffff"; }
+            if (intensity === void 0) { intensity = 1.0; }
+            if (dist === void 0) { dist = 500; }
+            if (shadow === void 0) { shadow = null; }
             var light = new THREE.PointLight(color, intensity, dist);
             if (shadow) {
                 light.castShadow = true;
@@ -140,12 +167,24 @@
             this.scene.add(light);
             return light;
         };
-        ThreejsTool.prototype.addHemisphereLight = function (color1, color2, intensity) {
+        LightManager.prototype.addHemisphereLight = function (color1, color2, intensity) {
+            if (color1 === void 0) { color1 = "#ff0000"; }
+            if (color2 === void 0) { color2 = "#0000ff"; }
+            if (intensity === void 0) { intensity = 1.0; }
             var light = new THREE.HemisphereLight(color1, color2, intensity);
             this.scene.add(light);
             return light;
         };
-        ThreejsTool.worldToScreenPosition = function (position, camera) {
+        return LightManager;
+    }());
+
+    var Math3d = (function () {
+        function Math3d() {
+            this.scene = window["scene"];
+            this.camera = window["camera"];
+            this.renderer = window["renderer"];
+        }
+        Math3d.worldToScreenPosition = function (position, camera) {
             var vector = new THREE.Vector3();
             vector.copy(position);
             var widthHalf = 0.5 * window.innerWidth;
@@ -158,7 +197,7 @@
                 y: vector.y
             };
         };
-        ThreejsTool.horizontalAngle = function (object1, object2) {
+        Math3d.horizontalAngle = function (object1, object2) {
             var position1 = this.getWorldPosition(object1);
             position1.y = 0;
             position1.normalize();
@@ -167,7 +206,7 @@
             position2.normalize();
             return Math.acos(position1.dot(position2));
         };
-        ThreejsTool.verticalAngle = function (object1, object2) {
+        Math3d.verticalAngle = function (object1, object2) {
             var position1 = this.getWorldPosition(object1);
             var position2 = this.getWorldPosition(object2);
             position1.x = position2.x;
@@ -176,15 +215,14 @@
             position2.normalize();
             return Math.acos(position1.dot(position2));
         };
-        ThreejsTool.getWorldPosition = function (object) {
+        Math3d.getWorldPosition = function (object) {
             object.updateMatrixWorld(true);
             object.updateMatrix();
             var position = new THREE.Vector3();
             position.setFromMatrixPosition(object.matrixWorld);
             return position;
         };
-        ThreejsTool.callbackArr = [];
-        ThreejsTool.Math = {
+        Math3d.Math = {
             radians: function (degrees) {
                 return degrees * Math.PI / 180;
             },
@@ -211,15 +249,43 @@
                 return 0;
             }
         };
-        return ThreejsTool;
+        return Math3d;
     }());
 
-    var Util3D = new ThreejsTool();
+    var GeoManager = (function () {
+        function GeoManager() {
+            this.scene = window["scene"];
+            this.camera = window["camera"];
+            this.renderer = window["renderer"];
+        }
+        GeoManager.prototype.createCube = function (_width, _hight, _depth, pos) {
+            if (_width === void 0) { _width = 10; }
+            if (_hight === void 0) { _hight = 10; }
+            if (_depth === void 0) { _depth = 10; }
+            if (pos === void 0) { pos = new THREE.Vector3(0, 0, 0); }
+            console.log("createCube");
+            var cubeGeo = new THREE.CubeGeometry(_width, _hight, _depth);
+            var cube = new THREE.Mesh(cubeGeo, new THREE.MeshBasicMaterial({
+                color: 0xff0000,
+            }));
+            cube.position.set(pos.x, pos.y, pos.z);
+            this.scene.add(cube);
+            return cube;
+        };
+        return GeoManager;
+    }());
 
-    exports.Util3D = Util3D;
+    var init3D = new ThreejsTool();
+    ThreejsTool.initEnd = function () {
+        exports.lights = new LightManager();
+        exports.math = new Math3d();
+        exports.geos = new GeoManager();
+    };
+
+    exports.init3D = init3D;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-/* util.js 版本号9月29日19:0 */
+/* util.js 版本号9月29日20:40 */
 //# sourceMappingURL=H5ThreeLib.js.map

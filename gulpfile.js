@@ -9,7 +9,7 @@ const rollupUglify = require('rollup-plugin-uglify');
 var dist_path = "./dist/";
 var dev_path = "./web";
 
-gulp.task('default', ['clean', 'rollupLib']);
+gulp.task('default', ['rollupLib']);
 
 //清除指定文件
 gulp.task("clean", function (callback) {
