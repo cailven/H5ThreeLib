@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+//    "module": "amd",
+    "module": "es6",
+    "charset":"UTF-8",
+    "rootDir":"web/",
+    "target": "es5",
+    "sourceMap": true,
+    "noImplicitAny": false,
+//    "noEmitOnError":true,
+    "outDir":"dist/",
+    "removeComments":true,
+    "listFiles":true,
+    "allowJs":false,
+    "declaration": true
+  },
+
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+
+}

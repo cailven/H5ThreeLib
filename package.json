@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "ts-loader": "^0.8.2",
+    "json-loader": "^0.5.4"
+  }
+}
