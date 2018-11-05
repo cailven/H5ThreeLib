@@ -14,6 +14,8 @@ export class ThreejsTool {
     private renderer;
     private controls;
     private container;
+    private raycaster;
+    private mouse;
 
     public init(container) {
         var s = this;
@@ -36,6 +38,13 @@ export class ThreejsTool {
 
         this.container = document.getElementById(container);
         this.container.appendChild(this.renderer.domElement);
+
+        window.addEventListener("touchstart", function (evt: TouchEvent) {
+            s.mouse.x = (evt.changedTouches[0].clientX / window.innerWidth) * 2 - 1;
+            s.mouse.y = -(evt.changedTouches[0].clientY / window.innerHeight) * 2 + 1;
+        })
+
+        this.raycaster = new THREE.Raycaster();
         window["scene"] = this.scene;
         window["camera"] = this.camera;
         window["renderer"] = this.renderer;
@@ -50,13 +59,40 @@ export class ThreejsTool {
                     ThreejsTool.callbackArr[i]();
                 }
             }
-
-
+            ray();
             s.renderer.render(s.scene, s.camera);
             if (s.controls) {
                 s.controls.update();
             }
         }
+
+
+        this.mouse = new THREE.Vector2(-1, -1);
+
+        function ray() {
+            s.raycaster.setFromCamera(s.mouse, s.camera);
+            var intersects = s.raycaster.intersectObjects(s.scene.children);
+            // console.log(intersects.length);
+            for (var i = 0; i < intersects.length; i++) {
+                if (ThreejsTool.rayData.length > 0) {
+                    for (var i = 0; i < ThreejsTool.rayData.length; i++) {
+                        var _name;
+                        if (typeof(ThreejsTool.rayData[i].name) == "string") {
+                            _name = ThreejsTool.rayData[i].name;
+                        } else {
+                            _name = ThreejsTool.rayData[i].name.name;
+                        }
+                        if (_name == intersects[i].object.name) {
+                            console.log(intersects[i]);
+                            ThreejsTool.rayData[i].func(intersects[i].object);
+                        }
+                    }
+                }
+            }
+            s.mouse.x = -1;
+            s.mouse.y = -1;
+        }
+
 
         animate();
         // window.addEventListener('resize', onWindowResize, false);
@@ -74,7 +110,11 @@ export class ThreejsTool {
         }
     }
 
-    public static initEnd
+
+    public static initEnd;
+
+    public static rayData: Array<any> = [];
+
 
     public helpbox(pos) {
         var cubeGeo = new THREE.CubeGeometry(10, 10, 10);
@@ -125,28 +165,18 @@ export class ThreejsTool {
     private static callbackArr = [];
 
     public static active(callBack) {
-        this.callbackArr.push(callBack);
+        ThreejsTool.callbackArr.push(callBack);
     }
+
+    public static setRayData(name, func) {
+        var obj = {name: name, func: func};
+        ThreejsTool.rayData.push(obj);
+    };
 
 
     public createOrbitControls() {
         this.controls = new THREE.OrbitControls(this.camera, this.container);
-        this.controls.minDistance = 120;
-        this.controls.maxDistance = 150;
-        this.controls.target = new THREE.Vector3(0, 40, 0);
-        this.controls.enablePan = false;
-        this.controls.enableRotate = false;
-        this.controls.enableZoom = false;
-        this.controls.minPolarAngle = Math.PI * 0.1;
-        this.controls.maxPolarAngle = 1.69;
-        // this.controls.maxPolarAngle = Math.PI * 0.499;
-        this.controls.enableDamping = true;
-        this.controls.dampingFactor = 0.25;
-        this.controls.rotateSpeed = 1;
-        // this.controls.autoRotate = true;
-        this.controls.autoRotateSpeed = 0.25;
         window["controls"] = this.controls;
-        // var animationMixer = new THREE.AnimationMixer(camera);
         return this.controls;
     }
 

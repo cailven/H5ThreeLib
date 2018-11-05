@@ -1,4 +1,4 @@
-/* util.js 版本号9月29日20:40 */
+/* util.js 版本号10月5日19:53 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -26,6 +26,11 @@
             this.renderer.localClippingEnabled = true;
             this.container = document.getElementById(container);
             this.container.appendChild(this.renderer.domElement);
+            window.addEventListener("touchstart", function (evt) {
+                s.mouse.x = (evt.changedTouches[0].clientX / window.innerWidth) * 2 - 1;
+                s.mouse.y = -(evt.changedTouches[0].clientY / window.innerHeight) * 2 + 1;
+            });
+            this.raycaster = new THREE.Raycaster();
             window["scene"] = this.scene;
             window["camera"] = this.camera;
             window["renderer"] = this.renderer;
@@ -39,10 +44,35 @@
                         ThreejsTool.callbackArr[i]();
                     }
                 }
+                ray();
                 s.renderer.render(s.scene, s.camera);
                 if (s.controls) {
                     s.controls.update();
                 }
+            }
+            this.mouse = new THREE.Vector2(-1, -1);
+            function ray() {
+                s.raycaster.setFromCamera(s.mouse, s.camera);
+                var intersects = s.raycaster.intersectObjects(s.scene.children);
+                for (var i = 0; i < intersects.length; i++) {
+                    if (ThreejsTool.rayData.length > 0) {
+                        for (var i = 0; i < ThreejsTool.rayData.length; i++) {
+                            var _name;
+                            if (typeof (ThreejsTool.rayData[i].name) == "string") {
+                                _name = ThreejsTool.rayData[i].name;
+                            }
+                            else {
+                                _name = ThreejsTool.rayData[i].name.name;
+                            }
+                            if (_name == intersects[i].object.name) {
+                                console.log(intersects[i]);
+                                ThreejsTool.rayData[i].func(intersects[i].object);
+                            }
+                        }
+                    }
+                }
+                s.mouse.x = -1;
+                s.mouse.y = -1;
             }
             animate();
             window.addEventListener("resize", function () {
@@ -98,25 +128,18 @@
             };
         };
         ThreejsTool.active = function (callBack) {
-            this.callbackArr.push(callBack);
+            ThreejsTool.callbackArr.push(callBack);
+        };
+        ThreejsTool.setRayData = function (name, func) {
+            var obj = { name: name, func: func };
+            ThreejsTool.rayData.push(obj);
         };
         ThreejsTool.prototype.createOrbitControls = function () {
             this.controls = new THREE.OrbitControls(this.camera, this.container);
-            this.controls.minDistance = 120;
-            this.controls.maxDistance = 150;
-            this.controls.target = new THREE.Vector3(0, 40, 0);
-            this.controls.enablePan = false;
-            this.controls.enableRotate = false;
-            this.controls.enableZoom = false;
-            this.controls.minPolarAngle = Math.PI * 0.1;
-            this.controls.maxPolarAngle = 1.69;
-            this.controls.enableDamping = true;
-            this.controls.dampingFactor = 0.25;
-            this.controls.rotateSpeed = 1;
-            this.controls.autoRotateSpeed = 0.25;
             window["controls"] = this.controls;
             return this.controls;
         };
+        ThreejsTool.rayData = [];
         ThreejsTool.callbackArr = [];
         return ThreejsTool;
     }());
@@ -276,6 +299,8 @@
     }());
 
     var init3D = new ThreejsTool();
+    var active = ThreejsTool.active;
+    var setRayData = ThreejsTool.setRayData;
     ThreejsTool.initEnd = function () {
         exports.lights = new LightManager();
         exports.math = new Math3d();
@@ -283,9 +308,11 @@
     };
 
     exports.init3D = init3D;
+    exports.active = active;
+    exports.setRayData = setRayData;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-/* util.js 版本号9月29日20:40 */
+/* util.js 版本号10月5日19:53 */
 //# sourceMappingURL=H5ThreeLib.js.map

@@ -8,6 +8,7 @@
           content="width=device-width, target-densitydpi=device-dpi , initial-scale=1, maximum-scale=1, user-scalable=no"/>
 
     <script src="lib/three.min.js"></script>
+    <script src="lib/OrbitControls.js"></script>
     <script src="../dist/H5ThreeLib.js"></script>
 
     <style>
@@ -33,15 +34,33 @@
 <script>
 
     H5ThreeLib.init3D.init("threeCanvas");
-    var cube = H5ThreeLib.geos.createCube();
+    H5ThreeLib.init3D.createOrbitControls();
 
-    function run() {
-        cube.rotation.y += 0.1;
-        cube.rotation.z += 0.1;
+    var cubeArr = [];
+    for (var i = 0; i < 20; i++) {
+        var cube = H5ThreeLib.geos.createCube();
+        cube.name = "box" + i;
+        cube.position.set((i % 5) * 20 - 40, parseInt(i / 5) * 20 - 40, 0);
+        cubeArr.push(cube);
     }
 
-    ThreejsTool.__proto__.constructor.active(run);
-    // H5ThreeLib.active(run);
+    function run() {
+        for (var i = 0; i < cubeArr.length; i++) {
+            cubeArr[i].rotation.y += 0.1;
+            cubeArr[i].rotation.z += 0.1;
+        }
+    }
+
+    H5ThreeLib.active(run);
+
+
+    // H5ThreeLib.setRayData("box1", function (evt) {
+    //     console.log(evt.name);
+    // });
+
+    H5ThreeLib.setRayData("box2", function (evt) {
+        console.log(evt.name);
+    });
 
 </script>
 </body>
