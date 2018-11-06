@@ -1,4 +1,4 @@
-/* util.js 版本号10月5日19:53 */
+/* util.js 版本号10月6日18:31 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -36,7 +36,6 @@
             window["renderer"] = this.renderer;
             window["ThreejsTool"] = this;
             ThreejsTool.initEnd();
-            console.log("init");
             function animate() {
                 requestAnimationFrame(animate);
                 if (ThreejsTool.callbackArr.length > 0) {
@@ -56,17 +55,18 @@
                 var intersects = s.raycaster.intersectObjects(s.scene.children);
                 for (var i = 0; i < intersects.length; i++) {
                     if (ThreejsTool.rayData.length > 0) {
-                        for (var i = 0; i < ThreejsTool.rayData.length; i++) {
+                        for (var j = 0; j < ThreejsTool.rayData.length; j++) {
                             var _name;
-                            if (typeof (ThreejsTool.rayData[i].name) == "string") {
-                                _name = ThreejsTool.rayData[i].name;
+                            if (typeof (ThreejsTool.rayData[j].name) == "string") {
+                                _name = ThreejsTool.rayData[j].name;
                             }
                             else {
-                                _name = ThreejsTool.rayData[i].name.name;
+                                _name = ThreejsTool.rayData[j].name.name;
                             }
-                            if (_name == intersects[i].object.name) {
-                                console.log(intersects[i]);
-                                ThreejsTool.rayData[i].func(intersects[i].object);
+                            if (intersects[i]) {
+                                if (_name == intersects[i].object.name) {
+                                    ThreejsTool.rayData[j].func(intersects[i].object);
+                                }
                             }
                         }
                     }
@@ -286,7 +286,6 @@
             if (_hight === void 0) { _hight = 10; }
             if (_depth === void 0) { _depth = 10; }
             if (pos === void 0) { pos = new THREE.Vector3(0, 0, 0); }
-            console.log("createCube");
             var cubeGeo = new THREE.CubeGeometry(_width, _hight, _depth);
             var cube = new THREE.Mesh(cubeGeo, new THREE.MeshBasicMaterial({
                 color: 0xff0000,
@@ -314,5 +313,5 @@
     Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-/* util.js 版本号10月5日19:53 */
+/* util.js 版本号10月6日18:31 */
 //# sourceMappingURL=H5ThreeLib.js.map

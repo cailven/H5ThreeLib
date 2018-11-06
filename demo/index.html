@@ -42,6 +42,10 @@
         cube.name = "box" + i;
         cube.position.set((i % 5) * 20 - 40, parseInt(i / 5) * 20 - 40, 0);
         cubeArr.push(cube);
+
+        H5ThreeLib.setRayData("box" + i, function (evt) {
+            console.log(evt.name);
+        });
     }
 
     function run() {
@@ -57,10 +61,10 @@
     // H5ThreeLib.setRayData("box1", function (evt) {
     //     console.log(evt.name);
     // });
-
-    H5ThreeLib.setRayData("box2", function (evt) {
-        console.log(evt.name);
-    });
+    //
+    // H5ThreeLib.setRayData("box2", function (evt) {
+    //     console.log(evt.name);
+    // });
 
 </script>
 </body>

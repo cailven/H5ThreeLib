@@ -50,7 +50,7 @@ export class ThreejsTool {
         window["renderer"] = this.renderer;
         window["ThreejsTool"] = this;
         ThreejsTool.initEnd();
-        console.log("init");
+        // console.log("init");
 
         function animate() {
             requestAnimationFrame(animate);
@@ -72,20 +72,21 @@ export class ThreejsTool {
         function ray() {
             s.raycaster.setFromCamera(s.mouse, s.camera);
             var intersects = s.raycaster.intersectObjects(s.scene.children);
-            // console.log(intersects.length);
             for (var i = 0; i < intersects.length; i++) {
                 if (ThreejsTool.rayData.length > 0) {
-                    for (var i = 0; i < ThreejsTool.rayData.length; i++) {
+                    for (var j = 0; j < ThreejsTool.rayData.length; j++) {
                         var _name;
-                        if (typeof(ThreejsTool.rayData[i].name) == "string") {
-                            _name = ThreejsTool.rayData[i].name;
+                        if (typeof(ThreejsTool.rayData[j].name) == "string") {
+                            _name = ThreejsTool.rayData[j].name;
                         } else {
-                            _name = ThreejsTool.rayData[i].name.name;
+                            _name = ThreejsTool.rayData[j].name.name;
                         }
-                        if (_name == intersects[i].object.name) {
-                            console.log(intersects[i]);
-                            ThreejsTool.rayData[i].func(intersects[i].object);
+                        if (intersects[i]) {
+                            if (_name == intersects[i].object.name) {
+                                ThreejsTool.rayData[j].func(intersects[i].object);
+                            }
                         }
+
                     }
                 }
             }
