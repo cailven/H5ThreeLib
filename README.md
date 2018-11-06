@@ -18,6 +18,27 @@ H5ThreeLib.active(function);
 H5ThreeLib.setRayData("objName", function);
 ```
 
+## 光线
+H5ThreeLib.lights
+
+```php
+addAmbientLight(color = "#ffffff", intensity = 1.0): THREE.AmbientLight
+```
+
+```php
+addSpotLight(color = "#ffffff", intensity = 1.0, angle = null, dist = 500, shadow = null): THREE.SpotLight
+```
+
+ ```php
+addPointLight(color = "#ffffff", intensity = 1.0, dist = 500, shadow = null): THREE.PointLight
+```
+
+```php
+addHemisphereLight(color1 = "#ff0000", color2 = "#0000ff", intensity = 1.0): THREE.HemisphereLight
+```
+
+
+
 ### Orbit控件
 
 ```php
