@@ -7,6 +7,7 @@ export class ThreejsTool {
         window["scene"] = this.scene;
         window["camera"] = this.camera;
         window["renderer"] = this.renderer;
+        window["composer"] = this.composer;
     }
 
     private scene;
@@ -16,6 +17,7 @@ export class ThreejsTool {
     private container;
     private raycaster;
     private mouse;
+    private composer;
 
     public init(container) {
         var s = this;
@@ -30,7 +32,7 @@ export class ThreejsTool {
         this.renderer = new THREE.WebGLRenderer({antialias: true});
         this.renderer.setPixelRatio(2);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setClearColor(0x0d176c, 1);
+        this.renderer.setClearColor(0x00000, 1);
         this.renderer.shadowMap.enabled = true;
         this.renderer.localClippingEnabled = true;
         // var globalPlane = new THREE.Plane( new THREE.Vector3( 1, 0, 0 ), 1 );
@@ -50,6 +52,7 @@ export class ThreejsTool {
         window["renderer"] = this.renderer;
         window["ThreejsTool"] = this;
         ThreejsTool.initEnd();
+
         // console.log("init");
 
         function animate() {
@@ -60,7 +63,17 @@ export class ThreejsTool {
                 }
             }
             ray();
-            s.renderer.render(s.scene, s.camera);
+            if (window["composer"]) {
+                // this.renderer.autoClear = false;
+                // this.renderer.clear();
+                // console.log("composer");
+                window["composer"].render();
+
+            } else {
+                // console.log("render");
+                s.renderer.render(s.scene, s.camera);
+            }
+
             if (s.controls) {
                 s.controls.update();
             }
@@ -104,10 +117,22 @@ export class ThreejsTool {
             }, 200);
         });
 
+
         function onWindowResize() {
             s.camera.aspect = window.innerWidth / window.innerHeight;
             s.camera.updateProjectionMatrix();
-            s.renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+            var width = window.innerWidth;
+            var height = window.innerHeight;
+            var pixelRatio = window["renderer"].getPixelRatio();
+
+            if (window["composer"]) {
+                window["composer"].setSize(width, height );
+            } else {
+                window["renderer"].setSize(width, height);
+            }
+
         }
     }
 
@@ -164,6 +189,7 @@ export class ThreejsTool {
     }
 
     private static callbackArr = [];
+
 
     public static active(callBack) {
         ThreejsTool.callbackArr.push(callBack);

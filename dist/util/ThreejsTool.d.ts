@@ -7,6 +7,7 @@ export declare class ThreejsTool {
     private container;
     private raycaster;
     private mouse;
+    private composer;
     init(container: any): void;
     static initEnd: any;
     static rayData: Array<any>;

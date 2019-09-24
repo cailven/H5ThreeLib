@@ -1,4 +1,4 @@
-/* util.js 版本号10月6日18:31 */
+/* util.js 版本号7月19日19:57 */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -10,6 +10,7 @@
             window["scene"] = this.scene;
             window["camera"] = this.camera;
             window["renderer"] = this.renderer;
+            window["composer"] = this.composer;
         }
         ThreejsTool.prototype.init = function (container) {
             var s = this;
@@ -21,7 +22,7 @@
             this.renderer = new THREE.WebGLRenderer({ antialias: true });
             this.renderer.setPixelRatio(2);
             this.renderer.setSize(window.innerWidth, window.innerHeight);
-            this.renderer.setClearColor(0x0d176c, 1);
+            this.renderer.setClearColor(0x00000, 1);
             this.renderer.shadowMap.enabled = true;
             this.renderer.localClippingEnabled = true;
             this.container = document.getElementById(container);
@@ -44,7 +45,12 @@
                     }
                 }
                 ray();
-                s.renderer.render(s.scene, s.camera);
+                if (window["composer"]) {
+                    window["composer"].render();
+                }
+                else {
+                    s.renderer.render(s.scene, s.camera);
+                }
                 if (s.controls) {
                     s.controls.update();
                 }
@@ -83,7 +89,15 @@
             function onWindowResize() {
                 s.camera.aspect = window.innerWidth / window.innerHeight;
                 s.camera.updateProjectionMatrix();
-                s.renderer.setSize(window.innerWidth, window.innerHeight);
+                var width = window.innerWidth;
+                var height = window.innerHeight;
+                var pixelRatio = window["renderer"].getPixelRatio();
+                if (window["composer"]) {
+                    window["composer"].setSize(width, height);
+                }
+                else {
+                    window["renderer"].setSize(width, height);
+                }
             }
         };
         ThreejsTool.prototype.helpbox = function (pos) {
@@ -287,14 +301,50 @@
             if (_depth === void 0) { _depth = 10; }
             if (pos === void 0) { pos = new THREE.Vector3(0, 0, 0); }
             var cubeGeo = new THREE.CubeGeometry(_width, _hight, _depth);
-            var cube = new THREE.Mesh(cubeGeo, new THREE.MeshBasicMaterial({
-                color: 0xff0000,
-            }));
+            var cube = new THREE.Mesh(cubeGeo, new THREE.MeshNormalMaterial());
             cube.position.set(pos.x, pos.y, pos.z);
             this.scene.add(cube);
             return cube;
         };
         return GeoManager;
+    }());
+
+    var ComposerManager = (function () {
+        function ComposerManager() {
+            this.scene = window["scene"];
+            this.camera = window["camera"];
+            this.renderer = window["renderer"];
+            this.composer = window["composer"];
+        }
+        ComposerManager.prototype.createComposer = function (passes) {
+            if (this.composer) {
+                return false;
+            }
+            this.composer = new THREE.EffectComposer(this.renderer);
+            var renderPass = new THREE.RenderPass(this.scene, this.camera);
+            this.composer.addPass(renderPass);
+            for (var i = 0; i < passes.length; i++) {
+                var pass = passes[i];
+                pass.renderToScreen = (i === passes.length - 1);
+                this.composer.addPass(pass);
+            }
+            window["composer"] = this.composer;
+        };
+        ComposerManager.prototype.setComposerShader = function (_uniforms, _fragmentShader) {
+            var shader = {
+                uniforms: _uniforms,
+                vertexShader: [
+                    "varying vec2 vUv;",
+                    "void main() {",
+                    "vUv = uv;",
+                    "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+                    "}"
+                ].join("\n"),
+                fragmentShader: _fragmentShader
+            };
+            return shader;
+        };
+        return ComposerManager;
     }());
 
     var init3D = new ThreejsTool();
@@ -304,6 +354,7 @@
         exports.lights = new LightManager();
         exports.math = new Math3d();
         exports.geos = new GeoManager();
+        exports.composer = new ComposerManager();
     };
 
     exports.init3D = init3D;
@@ -313,5 +364,5 @@
     Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-/* util.js 版本号10月6日18:31 */
+/* util.js 版本号7月19日19:57 */
 //# sourceMappingURL=H5ThreeLib.js.map
