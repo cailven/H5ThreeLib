@@ -61,3 +61,39 @@ addHemisphereLight(color1 = "#ff0000", color2 = "#0000ff", intensity = 1.0): THR
 H5ThreeLib.init3D.createOrbitControls();
 ```
 
+### postprocessing
+
+createComposer 方法支持多个不同的pass叠加
+
+自定义shader
+
+```php
+ var uniforms = {
+            "tDiffuse": {value: null},
+            "tSize": {value: new THREE.Vector2(256, 256)},
+            "center": {value: new THREE.Vector2(0.5, 0.5)},
+            "angle": {value: 1.57},
+            "scale": {value: 4.0}
+
+        }
+
+function shader(){
+    return `glsl code`
+}
+
+ var eff = H5ThreeLib.composer.setComposerShader(uniforms, shader());
+ H5ThreeLib.composer.createComposer([new THREE.ShaderPass(eff)]);
+```
+
+使用Three自带Pass
+
+```php
+
+ var bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0;
+        bloomPass.strength = 1.5;
+        bloomPass.radius = 0;
+
+H5ThreeLib.composer.createComposer([bloomPass]);  
+
+```
